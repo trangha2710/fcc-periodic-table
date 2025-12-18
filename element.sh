@@ -1,9 +1,12 @@
 #!/bin/bash
+#db setting
 PSQL="psql --username=freecodecamp --dbname=periodic_table -t --no-align -c"
+#check if argument exist
 if [[ -z $1 ]]; then
   echo "Please provide an element as an argument."
   exit 0
 fi
+#query if argument is a number, a symbol or a name
 INPUT_VALUE="$1"
 if [[ $INPUT_VALUE =~ ^[0-9]+$ ]]; then
   WHERE_CLAUSE="WHERE e.atomic_number = $INPUT_VALUE"
@@ -11,6 +14,7 @@ else
   # Input is text (symbol or name)
   WHERE_CLAUSE="WHERE e.symbol = '$INPUT_VALUE' OR e.name = '$INPUT_VALUE'"
 fi
+#query
 ELEMENT_DATA=$($PSQL "
   SELECT 
     e.atomic_number, 
@@ -27,9 +31,8 @@ ELEMENT_DATA=$($PSQL "
   $WHERE_CLAUSE
 ")
 
-# Trim whitespace from the result and use IFS (Internal Field Separator) to parse the single line into variables
 TRIMMED_DATA=$(echo "$ELEMENT_DATA" | xargs)
-
+#if value does not exist in the database
 if [[ -z "$TRIMMED_DATA" ]]; then
   echo "I could not find that element in the database."
 else
